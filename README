@@ -4,7 +4,7 @@ This implementation implements a range of distance metrics, and clustering metho
 
 Besides a regular implementation of the cluster algorithm, this script provides functionality to perform Variability-based Neighbor Clustering (e.g. Gries & Hilpert 2006). This is a method of clustering in which the order of allowed clusters is predetermined.
 
-The script is well-documented, so it should not be te hard to understand. 
+The script is well-documented, so it should not be to hard to understand. 
 
 You will need the following external modules to get the most out of the script:
   1. Numpy
