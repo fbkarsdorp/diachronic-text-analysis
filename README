@@ -1,0 +1,14 @@
+Hierarchical Agglomerative CLustering in Python.
+
+This implementation implements a range of distance metrics, and clustering methods, like single-linkage clustering, group-average clustering and Ward or minimum variance clustering. 
+
+Besides a regular implementation of the cluster algorithm, this script provides functionality to perform Variability-based Neighbor Clustering (e.g. Gries & Hilpert 2006). This is a method of clustering in which the order of allowed clusters is predetermined.
+
+The script is well-documented, so it should not be te hard to understand. 
+
+You will need the following external modules to get the most out of the script:
+  1. Numpy
+  2. Scipy
+  3. Matplotlib
+
+-- Folgert Karsdorp
