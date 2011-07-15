@@ -10,79 +10,12 @@ from __future__ import division
 import numpy
 import copy
 import argparse
-import codecs
-import os
-import re
-import string
 
-# TODO, someday, implement my own plotting function of the dendrogram.
-from scipy.cluster.hierarchy import dendrogram as scipy_dendrogram
-from numpy import log, sqrt, dot
 from operator import itemgetter
 from collections import defaultdict
 from itertools import combinations
 
-
-def ngrams(text, n):
-    """Return N grams of a text."""
-    count = max(0, len(text) - n + 1)
-    return (tuple(text[i:i+n]) for i in xrange(count))
-
-# distance measures
-def cosine_distance(u, v):
-    """Return the cosine distance between two vectors."""
-    return 1.0 - dot(u, v) / (sqrt(dot(u, u)) * sqrt(dot(v, v)))
-
-def euclidean_distance(u, v):
-    """Return the euclidean distance between two vectors."""
-    diff = u - v
-    return sqrt(dot(diff, diff))
-
-def cityblock_distance(u, v):
-    """Return the Manhattan/City Block distance between two vectors."""
-    return abs(u-v).sum()
-
-def canberra_distance(u, v):
-    """Return the canberra distance between two vectors."""
-    return numpy.sum(abs(u-v) / abs(u+v))
-
-def correlation(u, v):
-    """Return the correlation distance between two vectors."""
-    u_var = u - u.mean()
-    v_var = v - v.mean()
-    return 1.0 - dot(u_var, v_var) / (sqrt(dot(u_var, u_var)) *
-                                      sqrt(dot(v_var, v_var)))
-
-
-# TODO MOVE TO OTHER FILE? (SPECIFIC CLASS FOR GTB-CORPUS)
-class Text(object):
-    def __init__(self, id, title, author, year, text, kind=None):
-        self._id = id
-        self._text = text
-        self._title = title
-        self._author = author
-        self._year = int(year)
-        self._kind = kind
-        # remove all punctuation, transform to lowercase and split on spaces
-        self._tokens = text.translate(None, string.punctuation).lower().split()
-
-    def __hash__(self): # IS THIS ALLOWED?
-        return self._id
-
-    def title(self): return self._title
-    def author(self): return self._author
-    def year(self): return self._year
-    def kind(self): return self._kind
-
-    def __getitem__(self, i):
-        if isinstance(i, slice):
-            return self._tokens[i.start:i.stop]
-        else:
-            return self._tokens[i]
-
-    def __len__(self):
-        return len(self._tokens)
-
+from api import AbstractClusterer
 
 class CooccurrenceMatrix(numpy.ndarray):
     """ Represents a co-occurrence matrix. """
@@ -104,7 +37,7 @@ class CooccurrenceMatrix(numpy.ndarray):
     @classmethod
     def convert(cls, data):
         matrix = numpy.zeros((len(set(k for k,v in data)),
-                             len(set(v for k,v in data))))
+                              len(set(v for k,v in data))))
         colnames, rownames = {}, {}
         for k,v in sorted(data):
             if k not in rownames:
@@ -129,7 +62,7 @@ class CooccurrenceMatrix(numpy.ndarray):
         # calculate the term frequencies
         for i in xrange(self.shape[0]):
             tf = self[i] / words_per_doc[i] # array of tf's
-            matrix[i] = tf * (log(self.shape[0] / word_frequencies))
+            matrix[i] = tf * (numpy.log(self.shape[0] / word_frequencies))
         return matrix
 
 
@@ -200,207 +133,7 @@ class DistanceMatrix(numpy.ndarray):
         print self
 
 
-def _general_link(clusters, i, j, method):
-    """
-    This function is used to update the distance matrix in the clustering
-    procedure.
-
-    Several linkage methods for hierarchical agglomerative clustering
-    can be used: single linkage, complete linkage, group average linkage,
-    median linkage, centroid linkage and ward linkage.
-    
-    All linkage methods use the Lance-Williams update formula:
-    d(ij,k) = a(i)*d(i,k) + a(j)*d(j,k) + b*d(i,j) + c*(d(i,k) - d(j,k))
-    in the functions below, the following symbols represent the parameters in
-    the update formula:
-        n_x = length cluster
-        a_x = a(x)
-        d_xy = distance(x,y) or d(x,y)
-    """
-    for k in xrange(len(clusters)):
-        if k != i and k != j:
-            if method.__name__ == "ward_update":
-                new_distance = method(clusters[i,k], clusters[j,k], k)
-            else:
-                new_distance = method(clusters[i,k], clusters[j,k])
-            clusters[i,k] = new_distance
-            clusters[k,i] = new_distance
-    return clusters
-
-def single_link(clusters, i, j, dendrogram):
-    """
-    Hierarchical Agglomerative Clustering using single linkage. Cluster j is
-    clustered with cluster i when the minimum distance between any
-    of the members of i and j is the smallest distance in the vector space.
-    
-    Lance-Williams parameters:
-        a(i) = 0.5
-        b = 0       =   min(d(i,k),d(j,k))
-        c = -0.5
-    """
-    return _general_link(clusters, i, j, min)
-
-def complete_link(clusters, i, j, dendrogram):
-    """
-    Hierarchical Agglomerative Clustering using complete linkage. Cluster j is
-    clustered with cluster i when the maximum distance between any
-    of the members of i and j is the smallest distance in the vector space.
-
-    Lance-Williams parameters:
-       a(i) = 0.5
-       b = 0        =   max(d(i,k),d(j,k))   
-       c = 0.5
-    """
-    return _general_link(clusters, i, j, max)
-
-def average_link(clusters, i, j, dendrogram):
-    """
-    Hierarchical Agglomerative Clustering using group average linkage. Cluster j
-    is clustered with cluster i when the pairwise average of values between the
-    clusters is the smallest in the vector space.
-    
-    Lance-Williams parameters:
-        a(i) = |i|/(|i|+|j|)
-        b = 0
-        c = 0    
-    """
-    n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
-    a_i = n_i / (n_i + n_j)
-    a_j = n_j / (n_i + n_j)
-    update_fn = lambda d_ik,d_jk: a_i*d_ik + a_j*d_jk
-    return _general_link(clusters, i, j, update_fn)
-
-def median_link(clusters, i, j, dendrogram):
-    """
-    Hierarchical Agglomerative Clustering using median linkage. Cluster j
-    is clustered with cluster i when the distance between the median values
-    of the clusters is the smallest in the vector space.
-    
-    Lance-Williams parameters:
-        a(i) = 0.5
-        b = -0.25
-        c = 0
-    """
-    update_fn = lambda d_ik,d_jk: 0.5*d_ik + 0.5*d_jk + -0.25*clusters[i,j]
-    return _general_link(clusters, i, j, update_fn)
-
-def centroid_link(clusters, i, j, dendrogram):
-    """
-    Hierarchical Agglomerative Clustering using centroid linkage. Cluster j
-    is clustered with cluster i when the distance between the centroids of the
-    clusters is the smallest in the vector space.
-    
-    Lance-Williams parameters:
-        a(i) = |i| / (|i| + |j|)
-        b = -|i||j| / (|i|+ |j|)**2
-        c = 0
-    """
-    n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
-    a_i = n_i / (n_i + n_j)
-    a_j = n_j / (n_i + n_j)
-    b = -(n_i * n_j) / (n_i + n_j)**2
-    update_fn = lambda d_ik,d_jk: a_i*d_ik + a_j*d_jk + b*clusters[i,j]
-    return _general_link(clusters, i, j, update_fn)
-
-def ward_link(clusters, i, j, dendrogram):
-    """
-    Hierarchical Agglomerative Clustering using Ward's linkage. Two clusters i
-    and j are merged when their merge results in the smallest increase in the
-    sum of error squares in the vector space.
-    
-    Lance-Williams parameters:
-        a(i) = (|i| + |k|) / (|i| + |j| + |k|)
-        b = -|k|/(|i| + |j| + |k|)
-        c = 0
-    """
-    n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
-    def ward_update(d_ik, d_jk, k):
-        n_k = len(dendrogram._items[k])
-        n_ijk = n_i+n_j+n_k
-        return ( (n_i+n_k)/(n_ijk)*d_ik + (n_j+n_k)/(n_ijk)*d_jk +
-                 -(n_k/(n_ijk))*clusters[i][j] )
-    return _general_link(clusters, i, j, ward_update)
-
-
-class DendrogramNode(object):
-    """Represents a node in a dendrogram."""
-    def __init__(self, id, *children):
-        self.id = id
-        self.distance = 0.0
-        self._children = children
-
-    def leaves(self):
-        """Return the leaves of all children of a given node."""
-        if self._children:
-            leaves = []
-            for child in self._children:
-                leaves.extend(child.leaves())
-            return leaves
-        else:
-            return [self]
-
-    def adjacency_list(self):
-        """
-        For each merge in the dendrogram, return the direct children of
-        the cluster, the distance between them and the number of items in the
-        cluster (the total number of children all the way down the tree).
-        """
-        if self._children:
-            a_list = [(self._children[0].id, self._children[1].id,
-                       self.distance, len(self))]
-            for child in self._children:
-                a_list.extend(child.adjacency_list())
-            return a_list
-        else: return []
-
-    def __len__(self):
-        return len(self.leaves())
-
-
-class Dendrogram(object):
-    """
-    Class representing a dendrogram. Part is inspired by the Dendrogram class
-    of NLTK. It is adjusted to work properly and more efficiently with
-    matplotlib and VNC. 
-    """
-    def __init__(self, items):
-        self._items = [DendrogramNode(i) for i in xrange(len(items))]
-        self._original_items = copy.copy(self._items)
-        self._num_items = len(self._items)
-
-    def merge(self, *indices):
-        """
-        Merge two or more nodes at the given INDICES in the dendrogram.
-        The new node will get the index of the first node specified.
-        """
-        assert len(indices) >= 2
-        node = DendrogramNode(
-            self._num_items, *[self._items[i] for i in indices])
-        self._num_items += 1
-        self._items[indices[0]] = node
-        for i in indices[1:]:
-            del self._items[i]
-
-    def draw(self, show=True, save=False, format="pdf", labels=None, title=None):
-        """Draw the dendrogram using pylab and matplotlib."""
-        try:
-            import pylab
-        except ImportError:
-            raise ImportError("Pylab not installed, can't draw dendrogram")
-        fig = pylab.figure()
-        m = numpy.array(sorted(self._items[0].adjacency_list(), key=itemgetter(2)),
-                  numpy.dtype('d'))
-        # default labels are the cluster id's (these must be matched!!)
-        d = scipy_dendrogram(m, labels=labels, color_threshold=0.6*max(m[:,2]))
-        if title is not None:
-            fig.suptitle(title, fontsize=12)
-        if show:
-            fig.show()
-        if save:
-            fig.savefig('dendrogram.%s' % (format,))
-
-
-class Clusterer(object):
+class Clusterer(AbstractClusterer):
     """
     The Hierarchical Agglomerative Clusterer starts with each of the N vectors
     as singleton clusters. It then iteratively merges pairs of clusters which
@@ -420,10 +153,6 @@ class Clusterer(object):
         self._dendrogram = Dendrogram(vector_ids)
         self._dist_matrix = data
         self.linkage = linkage
-
-    def iterate_clusters(self):
-        """Iterate over all unique vector combinations in the matrix."""
-        raise NotImplementedError()
 
     def smallest_distance(self, clusters):
         """
