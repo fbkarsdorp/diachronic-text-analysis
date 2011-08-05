@@ -16,6 +16,8 @@ from collections import defaultdict
 from itertools import combinations
 
 from api import AbstractClusterer
+from distance import *
+from linkage import *
 
 class CooccurrenceMatrix(numpy.ndarray):
     """ Represents a co-occurrence matrix. """
@@ -159,6 +161,12 @@ class Clusterer(AbstractClusterer):
         Return the smallest distance in the distance matrix.
         The smallest distance depends on the possible connections in
         the distance matrix.
+        
+        @param clusters: an object of the class L{DistanceMatrix} holding the 
+            clusters at a specific state in the clustering procedure.
+        @type clusters: L{DistanceMatrix}
+        @return: a tuple containing the smallest distance and the indexes of
+            the clusters yielding the smallest distance.
         """
         i, j = numpy.unravel_index(numpy.nanargmin(clusters), clusters.shape)
         return clusters[i,j], i, j
@@ -166,7 +174,12 @@ class Clusterer(AbstractClusterer):
     def cluster(self, verbose=0, sum_ess=False):
         """
         Cluster all clusters hierarchically until the level of
-        num_clusters is obtained. 
+        num_clusters is obtained.
+        
+        @param verbose: how much output is produced during the clustering (0-2)
+        @type verbose: C{int}
+        
+        @return: None, desctructive method. 
         """
         if sum_ess and self.linkage.__name__ != "ward_link":
             raise ValueError(
@@ -213,6 +226,12 @@ class Clusterer(AbstractClusterer):
 
 
 class VNClusterer(Clusterer):
+    """
+    Variability Neighbor Clustering Class. A subclass of the regular Clusterer
+    where the order of clustering can be predetermined. In the normal clustering
+    procedure, all clusters can be clustered with all other clusters. In this 
+    class, the clusters that are allowed to be clustered follow a specific order.
+    """
     def __init__(self, data, dist_metric=euclidean_distance,
                  linkage=ward_link, num_clusters=1):
         Clusterer.__init__(self, data, dist_metric, linkage, num_clusters)

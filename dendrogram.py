@@ -8,6 +8,7 @@
 import copy
 from scipy.cluster.hierarchy import dendrogram as scipy_dendrogram
 
+
 class DendrogramNode(object):
     """Represents a node in a dendrogram."""
     def __init__(self, id, *children):

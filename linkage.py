@@ -1,7 +1,7 @@
 # Hierarchical Agglomerative Cluster Analysis
 #
 # Copyright (C) 2011 Institute for Dutch Lexicology (INL)
-# Author: Folgert Karsdorp <folgert.karsdorp@inl.nl>
+# author: Folgert Karsdorp <folgert.karsdorp@inl.nl>
 # URL: <http://www.inl.nl/>
 # For licence information, see LICENCE.TXT
 
@@ -11,16 +11,39 @@ def _general_link(clusters, i, j, method):
     procedure.
 
     Several linkage methods for hierarchical agglomerative clustering
-    can be used: single linkage, complete linkage, group average linkage,
-    median linkage, centroid linkage and ward linkage.
+    can be used: 
+        - single linkage; 
+        - complete linkage;
+        - group average linkage;
+        - median linkage; 
+        - centroid linkage and 
+        - ward linkage.
     
     All linkage methods use the Lance-Williams update formula:
-    d(ij,k) = a(i)*d(i,k) + a(j)*d(j,k) + b*d(i,j) + c*(d(i,k) - d(j,k))
-    in the functions below, the following symbols represent the parameters in
+    M{d(ij,k) = S{alpha}(i)*d(i,k) + S{alpha}(j)*d(j,k) + S{beta}*d(i,j) + 
+    S{gamma}*(d(i,k) - d(j,k))}
+    
+    In the functions below, the following symbols represent the parameters in
     the update formula:
-        n_x = length cluster
-        a_x = a(x)
-        d_xy = distance(x,y) or d(x,y)
+        1. n_x = length cluster
+        2. a_x = S{alpha}(x)
+        3. b_x = S{beta}(x)
+        4. c_x = S{gamma}(x)
+        5. d_xy = distance(x,y) = d(x,y)
+        
+    @param clusters: an object of the class L{DistanceMatrix}
+    @type clusters: L{DistanceMatrix}
+    
+    @param i: cluster A 
+    @type i: C{int}
+    
+    @param j: cluster B
+    @type j: C{int}
+    
+    @param method: the method used for clustering.
+    @type method: a function
+    
+    @return: an updated distance matrix
     """
     for k in xrange(len(clusters)):
         if k != i and k != j:
@@ -39,9 +62,9 @@ def single_link(clusters, i, j, dendrogram):
     of the members of i and j is the smallest distance in the vector space.
     
     Lance-Williams parameters:
-        a(i) = 0.5
-        b = 0       =   min(d(i,k),d(j,k))
-        c = -0.5
+    
+    M{S{alpha}(i) = 0.5; S{beta} = 0; S{gamma} = -0.5} which equals
+    M{min(d(i,k),d(j,k))}
     """
     return _general_link(clusters, i, j, min)
 
@@ -52,9 +75,9 @@ def complete_link(clusters, i, j, dendrogram):
     of the members of i and j is the smallest distance in the vector space.
 
     Lance-Williams parameters:
-       a(i) = 0.5
-       b = 0        =   max(d(i,k),d(j,k))   
-       c = 0.5
+    
+    M{S{alpha}(i) = 0.5; S{beta} = 0; S{gamma} = 0.5} which equals 
+    M{max(d(i,k),d(j,k))}
     """
     return _general_link(clusters, i, j, max)
 
@@ -65,9 +88,8 @@ def average_link(clusters, i, j, dendrogram):
     clusters is the smallest in the vector space.
     
     Lance-Williams parameters:
-        a(i) = |i|/(|i|+|j|)
-        b = 0
-        c = 0    
+    
+    M{S{alpha}(i) = |i|/(|i|+|j|); S{beta} = 0; S{gamma} = 0}
     """
     n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
     a_i = n_i / (n_i + n_j)
@@ -82,9 +104,8 @@ def median_link(clusters, i, j, dendrogram):
     of the clusters is the smallest in the vector space.
     
     Lance-Williams parameters:
-        a(i) = 0.5
-        b = -0.25
-        c = 0
+    
+    M{S{alpha}(i) = 0.5; S{beta} = -0.25; S{gamma} = 0}
     """
     update_fn = lambda d_ik,d_jk: 0.5*d_ik + 0.5*d_jk + -0.25*clusters[i,j]
     return _general_link(clusters, i, j, update_fn)
@@ -96,9 +117,9 @@ def centroid_link(clusters, i, j, dendrogram):
     clusters is the smallest in the vector space.
     
     Lance-Williams parameters:
-        a(i) = |i| / (|i| + |j|)
-        b = -|i||j| / (|i|+ |j|)**2
-        c = 0
+    
+    M{S{alpha}(i) = |i| / (|i| + |j|); S{beta} = -|i||j| / (|i|+ |j|)^2; 
+    S{gamma} = 0}
     """
     n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
     a_i = n_i / (n_i + n_j)
@@ -114,9 +135,9 @@ def ward_link(clusters, i, j, dendrogram):
     sum of error squares in the vector space.
     
     Lance-Williams parameters:
-        a(i) = (|i| + |k|) / (|i| + |j| + |k|)
-        b = -|k|/(|i| + |j| + |k|)
-        c = 0
+    
+    M{S{alpha}(i) = (|i| + |k|) / (|i| + |j| + |k|); 
+    S{beta} = -|k|/(|i| + |j| + |k|); S{gamma} = 0}
     """
     n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
     def ward_update(d_ik, d_jk, k):
@@ -126,3 +147,5 @@ def ward_link(clusters, i, j, dendrogram):
                  -(n_k/(n_ijk))*clusters[i][j] )
     return _general_link(clusters, i, j, ward_update)
 
+__all__ = ['single_link', 'complete_link', 'centroid_link', 'ward_link',
+           'median_link', 'average_link']

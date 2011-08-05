@@ -6,7 +6,7 @@
 # For licence information, see LICENCE.TXT
 
 import numpy
-from numpy import dot sqrt
+from numpy import dot, sqrt
 
 # distance measures
 def cosine_distance(u, v):
