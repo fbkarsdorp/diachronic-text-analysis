@@ -9,7 +9,6 @@ import copy
 
 import numpy
 from operator import itemgetter
-from scipy.cluster.hierarchy import dendrogram as scipy_dendrogram
 
 
 class DendrogramNode(object):
@@ -74,9 +73,14 @@ class Dendrogram(object):
     def draw(self, show=True, save=False, format="pdf", labels=None, title=None):
         """Draw the dendrogram using pylab and matplotlib."""
         try:
+            from scipy.cluster.hierarchy import dendrogram as scipy_dendrogram
+        except ImportError:
+            raise ImportError("Scipy not installed, can't draw dendrogram")
+        try:
             import pylab
         except ImportError:
             raise ImportError("Pylab not installed, can't draw dendrogram")
+        
         fig = pylab.figure()
         m = numpy.array(sorted(self._items[0].adjacency_list(), key=itemgetter(2)),
                   numpy.dtype('d'))
