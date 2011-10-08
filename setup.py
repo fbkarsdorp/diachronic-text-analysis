@@ -3,9 +3,13 @@
 from distutils.core import setup
 
 setup(name = 'hacpy',
-      version = '0.1',
+      version = '0.2',
       description = 'Hierarchical Agglomerative Cluster Analysis in Python',
       author = 'Folgert Karsdorp',
       author_email = 'folgert.karsdorp@inl.nl',
-      py_modules = ['cluster', 'distance', 'linkage', 'api', 'corpus', 
-                    'dendrogram', 'utils'])
+      copyright = 'Instituut voor Nederlandse Lexicologie',
+      py_modules = ['cluster', 'distance', 'linkage', 'api', 'dendrogram'],
+      requires = ['numpy'],
+      url = "https://github.com/fbkarsdorp/HAC-python",
+      packages = ['hacpy'],
+      platforms = 'Mac OS X, MS Windows, GNU Linux')
