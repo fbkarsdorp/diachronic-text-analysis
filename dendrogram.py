@@ -6,6 +6,9 @@
 # For licence information, see LICENCE.TXT
 
 import copy
+
+import numpy
+from operator import itemgetter
 from scipy.cluster.hierarchy import dendrogram as scipy_dendrogram
 
 

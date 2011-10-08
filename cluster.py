@@ -16,8 +16,10 @@ from collections import defaultdict
 from itertools import combinations
 
 from api import AbstractClusterer
+from dendrogram import Dendrogram
 from distance import *
 from linkage import *
+
 
 class CooccurrenceMatrix(numpy.ndarray):
     """ Represents a co-occurrence matrix. """
@@ -35,6 +37,15 @@ class CooccurrenceMatrix(numpy.ndarray):
         if obj is None: return
         self.rownames = getattr(obj, 'rownames', None)
         self.colnames = getattr(obj, 'colnames', None)
+        
+    def row(self, row):
+        return self[self.rownames.get(row)]
+        
+    def col(self, col):
+        return self[:,self.colnames.get(col)]
+        
+    def cell(self, row, col):
+        return self[self.rownames.get(row), self.colnames.get(col)]
 
     @classmethod
     def convert(cls, data):
@@ -270,5 +281,4 @@ def demo():
 
 
 if __name__ == '__main__':
-    # TODO argparse options to make this executable.
     demo()

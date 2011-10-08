@@ -5,6 +5,8 @@
 # URL: <http://www.inl.nl/>
 # For licence information, see LICENCE.TXT
 
+from __future__ import division
+
 def _general_link(clusters, i, j, method):
     """
     This function is used to update the distance matrix in the clustering
