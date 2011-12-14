@@ -1,8 +1,8 @@
 # Hierarchical Agglomerative Cluster Analysis
 #
-# Copyright (C) 2011 Institute for Dutch Lexicology (INL)
-# Author: Folgert Karsdorp <folgert.karsdorp@inl.nl>
-# URL: <http://www.inl.nl/>
+# Copyright (C) 2011 Folgert Karsdorp
+# Author: Folgert Karsdorp <fbkarsdorp@gmail.com>
+# URL: <https://github.com/fbkarsdorp/HAC-python>
 # For licence information, see LICENCE.TXT
 
 import numpy
