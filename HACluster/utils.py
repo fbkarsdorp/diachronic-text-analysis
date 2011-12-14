@@ -10,3 +10,4 @@ def ngrams(text, n):
     count = max(0, len(text) - n + 1)
     return (tuple(text[i:i+n]) for i in xrange(count))
 
+

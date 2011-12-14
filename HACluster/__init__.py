@@ -38,11 +38,10 @@ Usage example (compare demo()):
     >>> clusterer.dendrogram().draw(title=clusterer.linkage.__name__)
     
 @author: Folgert Karsdorp
-@organization: Institute for Dutch Lexicology (INL)
 @requires: Python 2.6+
 @version: 0.1
 @license: GPL
-@copyright: (c) 2011, Folgert Karsdorp, Institute for Dutch Lexicology (INL)
+@copyright: (c) 2011, Folgert Karsdorp
 """
 
 from utils import *
