@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-setup(name = 'hacpy',
+setup(name = 'HACluster',
       version = '0.2',
       description = 'Hierarchical Agglomerative Cluster Analysis in Python',
       author = 'Folgert Karsdorp',
@@ -10,5 +10,5 @@ setup(name = 'hacpy',
       copyright = 'Instituut voor Nederlandse Lexicologie',
       requires = ['numpy'],
       url = "https://github.com/fbkarsdorp/HAC-python",
-      packages = ['hacpy'],
+      packages = ['HACluster'],
       platforms = 'Mac OS X, MS Windows, GNU Linux')
