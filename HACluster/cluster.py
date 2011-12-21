@@ -192,9 +192,9 @@ class Clusterer(AbstractClusterer):
         
         @return: None, desctructive method. 
         """
-        if sum_ess and self.linkage.__name__ != "ward_link":
-            raise ValueError(
-                "Summing for method other than Ward makes no sense...")
+        ## if sum_ess and self.linkage.__name__ != "ward_link":
+        ##     raise ValueError(
+        ##         "Summing for method other than Ward makes no sense...")
         clusters = copy.copy(self._dist_matrix)
         summed_ess = 0.0
 
