@@ -82,8 +82,8 @@ class Dendrogram(object):
             raise ImportError("Pylab not installed, can't draw dendrogram")
         
         fig = pylab.figure()
-        m = numpy.array(sorted(self._items[0].adjacency_list(), key=itemgetter(2)),
-                  numpy.dtype('d'))
+        m = numpy.array(self._items[0].adjacency_list(), numpy.dtype('d'))
+        m.view('d,d,d,d').sort(order=['f2'], axis=0)
         # default labels are the cluster id's (these must be matched!!)
         d = scipy_dendrogram(m, labels=labels, color_threshold=0.6*max(m[:,2]))
         if title is not None:
