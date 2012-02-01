@@ -70,7 +70,7 @@ class Dendrogram(object):
         for i in indices[1:]:
             del self._items[i]
 
-    def draw(self, show=True, save=False, format="pdf", labels=None, title=None):
+    def draw(self, show=True, save=False, format="pdf", labels=None, title=None, fontsize=None):
         """Draw the dendrogram using pylab and matplotlib."""
         try:
             from scipy.cluster.hierarchy import dendrogram as scipy_dendrogram
@@ -85,7 +85,8 @@ class Dendrogram(object):
         m = numpy.array(self._items[0].adjacency_list(), numpy.dtype('d'))
         m.view('d,d,d,d').sort(order=['f2'], axis=0)
         # default labels are the cluster id's (these must be matched!!)
-        d = scipy_dendrogram(m, labels=labels, color_threshold=0.6*max(m[:,2]))
+        d = scipy_dendrogram(m, labels=labels, leaf_font_size=fontsize,
+                             color_threshold=0.6*max(m[:,2]))
         if title is not None:
             fig.suptitle(title, fontsize=12)
         if show:

@@ -32,3 +32,10 @@ def correlation(u, v):
     v_var = v - v.mean()
     return 1.0 - dot(u_var, v_var) / (sqrt(dot(u_var, u_var)) *
                                       sqrt(dot(v_var, v_var)))
+    
+def dice(u, v):
+    """Return the dice coefficient between two vectors."""
+    u = u > 0
+    v = v > 0
+    return (2.0 * (u * v).sum()) / (u.sum() + v.sum())
+
