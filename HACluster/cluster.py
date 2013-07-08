@@ -1,6 +1,6 @@
 # Hierarchical Agglomerative Cluster Analysis
 #
-# Copyright (C) 2011 Folgert Karsdorp
+# Copyright (C) 2013 Folgert Karsdorp
 # Author: Folgert Karsdorp <fbkarsdorp@gmail.com>
 # URL: <https://github.com/fbkarsdorp/HAC-python>
 # For licence information, see LICENCE.TXT
@@ -13,7 +13,7 @@ import argparse
 
 from operator import itemgetter
 from collections import defaultdict
-from itertools import combinations
+from itertools import combinations, product
 
 from api import AbstractClusterer
 from dendrogram import Dendrogram
@@ -58,8 +58,8 @@ class CooccurrenceMatrix(numpy.ndarray):
             if v not in colnames:
                 colnames[v] = len(colnames)
             matrix[rownames[k],colnames[v]] += 1
-        rownames = [k for k,v in sorted(rownames.items(), key=itemgetter(1))]
-        colnames = [k for k,v in sorted(colnames.items(), key=itemgetter(1))]
+        #rownames = [k for k,v in sorted(rownames.items(), key=itemgetter(1))]
+        #colnames = [k for k,v in sorted(colnames.items(), key=itemgetter(1))]
         return matrix, rownames, colnames
 
     def tfidf(self):
@@ -69,9 +69,9 @@ class CooccurrenceMatrix(numpy.ndarray):
         """
         matrix = numpy.zeros(self.shape)
         # the number of words in a document
-        words_per_doc = self.sum(axis=1)
+        words_per_doc = numpy.asarray(self.sum(axis=1), dtype=float)
         # the number of documents in which a word is attested.
-        word_frequencies = numpy.sum(self > 0, axis=0)
+        word_frequencies = numpy.asarray(numpy.sum(self > 0, axis=0), dtype=float)
         # calculate the term frequencies
         for i in xrange(self.shape[0]):
             tf = self[i] / words_per_doc[i] # array of tf's
@@ -85,19 +85,30 @@ class DistanceMatrix(numpy.ndarray):
     Distance Matrix functionality like plotting the distance matrix
     with matplotlib.
     """
-    def __new__(cls, input_array, dist_metric=euclidean_distance, lower=True):
-        if (not isinstance(input_array, (numpy.ndarray, DistanceMatrix))
-            or len(input_array) != len(input_array[0])
-            or not max(numpy.diag(input_array)) == 0):
-            input_array = DistanceMatrix.convert_to_distmatrix(
-                numpy.array(input_array), dist_metric, lower=lower)
-        obj = numpy.asarray(input_array).view(cls)
+    def __new__(cls, data, dist_metric=euclidean_distance, lower=True):
+        if (not isinstance(data, (numpy.ndarray, DistanceMatrix))
+            or len(data) != len(data[0])
+            or not max(numpy.diag(data)) == 0):
+            data = DistanceMatrix.convert_to_distmatrix(data, dist_metric, lower=lower)
+        obj = numpy.asarray(data).view(cls)
         obj.distance_metric = dist_metric
         return obj
 
     def __array_finialize__(self, obj):
         if obj is None: return
         self.distance_metric = getattr(obj, 'distance_metric', None)
+    
+    def row(self, row):
+        return self[self.rownames.get(row)]
+
+    def col(self, col):
+        return self[:,self.colnames.get(col)]
+
+    def cell(self, row, col):
+        return self[self.rownames.get(row), self.colnames.get(col)]  
+        
+    def rows(self):
+        return [k for k,v in sorted(self.rownames.items(), key=itemgetter(1))]
 
     @classmethod
     def convert_to_distmatrix(cls, data, distance, lower=True):
@@ -109,7 +120,7 @@ class DistanceMatrix(numpy.ndarray):
         # add a nan-diagonal, useful for further computations.
         numpy.fill_diagonal(matrix, numpy.nan)
         return matrix
-
+            
     def diag_is_zero(self):
         """Check if the diagonal contains only distances of 0."""
         return max(numpy.diag(self)) == 0
@@ -156,13 +167,7 @@ class Clusterer(AbstractClusterer):
     def __init__(self, data, dist_metric=euclidean_distance,
                  linkage = ward_link, num_clusters=1):
         self._num_clusters = num_clusters
-        if isinstance(data, DistanceMatrix):
-            vector_ids = [[i] for i in range(len(data))]
-        elif isinstance(data, (numpy.ndarray, list)):
-            vector_ids = data
-            data = DistanceMatrix(data, dist_metric)
-        else:
-            raise ValueError('Input must by of type list or DistanceMatrix')
+        vector_ids = [[i] for i in range(len(data))]
         self._dendrogram = Dendrogram(vector_ids)
         self._dist_matrix = data
         self.linkage = linkage

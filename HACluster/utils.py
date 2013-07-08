@@ -1,6 +1,6 @@
 # Hierarchical Agglomerative Cluster Analysis
 #
-# Copyright (C) 2011 Folgert Karsdorp
+# Copyright (C) 2013 Folgert Karsdorp
 # Author: Folgert Karsdorp <fbkarsdorp@gmail.com>
 # URL: <https://github.com/fbkarsdorp/HAC-python>
 # For licence information, see LICENCE.TXT

@@ -3,11 +3,10 @@
 from distutils.core import setup
 
 setup(name = 'HACluster',
-      version = '0.2',
+      version = '0.3',
       description = 'Hierarchical Agglomerative Cluster Analysis in Python',
       author = 'Folgert Karsdorp',
-      author_email = 'folgert.karsdorp@inl.nl',
-      copyright = 'Instituut voor Nederlandse Lexicologie',
+      author_email = 'fbkarsdorp@gmail.com',
       requires = ['numpy'],
       url = "https://github.com/fbkarsdorp/HAC-python",
       packages = ['HACluster'],
