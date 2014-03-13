@@ -6,6 +6,7 @@
 # For licence information, see LICENCE.TXT
 
 from __future__ import division
+import numpy as np
 
 def _general_link(clusters, i, j, method):
     """
@@ -68,7 +69,13 @@ def single_link(clusters, i, j, dendrogram):
     M{S{alpha}(i) = 0.5; S{beta} = 0; S{gamma} = -0.5} which equals
     M{min(d(i,k),d(j,k))}
     """
-    return _general_link(clusters, i, j, min)
+    ks = np.arange(clusters.shape[0])
+    ks = ks[(ks!=i) & (ks!=j)]
+    minima = np.minimum(clusters[i,], clusters[j,])[ks]
+    clusters[i,ks] = minima
+    clusters[ks,i] = minima
+    return clusters
+    # return _general_link(clusters, i, j, min)
 
 def complete_link(clusters, i, j, dendrogram):
     """
@@ -81,7 +88,13 @@ def complete_link(clusters, i, j, dendrogram):
     M{S{alpha}(i) = 0.5; S{beta} = 0; S{gamma} = 0.5} which equals 
     M{max(d(i,k),d(j,k))}
     """
-    return _general_link(clusters, i, j, max)
+    ks = np.arange(clusters.shape[0])
+    ks = ks[(ks!=i) & (ks!=j)]
+    maxima = np.maximum(clusters[i,], clusters[j,])[ks]
+    clusters[i,ks] = maxima
+    clusters[ks,i] = maxima
+    return clusters
+    # return _general_link(clusters, i, j, max)
 
 def average_link(clusters, i, j, dendrogram):
     """

@@ -169,6 +169,7 @@ class Clusterer(AbstractClusterer):
         self._num_clusters = num_clusters
         vector_ids = [[i] for i in range(len(data))]
         self._dendrogram = Dendrogram(vector_ids)
+        numpy.fill_diagonal(data, numpy.inf)
         self._dist_matrix = data
         self.linkage = linkage
 
@@ -184,7 +185,7 @@ class Clusterer(AbstractClusterer):
         @return: a tuple containing the smallest distance and the indexes of
             the clusters yielding the smallest distance.
         """
-        i, j = numpy.unravel_index(numpy.nanargmin(clusters), clusters.shape)
+        i, j = numpy.unravel_index(numpy.argmin(clusters), clusters.shape)
         return clusters[i,j], i, j
 
     def cluster(self, verbose=0, sum_ess=False):
@@ -200,8 +201,8 @@ class Clusterer(AbstractClusterer):
         ## if sum_ess and self.linkage.__name__ != "ward_link":
         ##     raise ValueError(
         ##         "Summing for method other than Ward makes no sense...")
-        # clusters = copy.copy(self._dist_matrix)
-        clusters = self._dist_matrix
+        clusters = copy.copy(self._dist_matrix)
+        #clusters = self._dist_matrix
         summed_ess = 0.0
 
         while len(clusters) > max(self._num_clusters, 1):
@@ -221,8 +222,8 @@ class Clusterer(AbstractClusterer):
             clusters = self.update_distmatrix(i, j, clusters)
             self._dendrogram.merge(i,j)
             self._dendrogram._items[i].distance = summed_ess
-            indices = range(clusters.shape[0])
-            indices.remove(j)
+            indices = numpy.arange(clusters.shape[0])
+            indices = indices[indices!=j]
             clusters = clusters.take(indices, axis=0).take(indices, axis=1)
 
     def update_distmatrix(self, i, j, clusters):
@@ -274,17 +275,18 @@ class VNClusterer(Clusterer):
 def demo():
     """Demo to show some basic functionality."""
     # input vector with two dimensions
-    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2]])
+    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2]]*500)
     # compute the distance matrix on the basis of the vectors
-    dist_matrix = DistanceMatrix(vectors, lambda u,v: numpy.sum((u-v)**2)/2)
+#    dist_matrix = DistanceMatrix(vectors, lambda u,v: numpy.sum((u-v)**2)/2)
+    dist_matrix = pairwise_distances(vectors)
     # plot the distance matrix
-    dist_matrix.draw()
+#    dist_matrix.draw()
     # initialize a clusterer, with default linkage methode (Ward)
-    clusterer = Clusterer(dist_matrix)
+    clusterer = Clusterer(dist_matrix, linkage=single_link)
     # start the clustering procedure
-    clusterer.cluster(verbose=2)
+    clusterer.cluster(verbose=1)
     # plot the result as a dendrogram
-    clusterer.dendrogram().draw(title=clusterer.linkage.__name__)
+#    clusterer.dendrogram().draw(title=clusterer.linkage.__name__)
 
 
 if __name__ == '__main__':
