@@ -10,22 +10,12 @@ class AbstractClusterer(object):
     """
     Abstract interface covering basic clustering functionality.
     """
-    def __init__(self, data, dist_metric, linkage, num_clusters):
+    def __init__(self, data, linkage, num_clusters):
         """
         @param data: A DistanceMatrix or list of feature value pairs from which 
         a DistanceMatrix can be constructed.
         @type data: L{DistanceMatrix} or C{list}
-        
-        @param dist_metric: a distance metric. The following metrics are 
-        implemented:
-            1. Cosine Distance (L{cosine_distance})
-            2. Euclidean Distance (L{euclidean_distance})
-            3. Cityblock Distance (L{cityblock_distance})
-            4. Canberra Distance (L{canberra_distance})
-            5. Correlation coefficient (L{correlation})
-        or any other function.
-        @type dist_metric: C{function}
-        
+                
         @param linkage: a clustering of linkage method. The following methods
         are implemented:
             1. Single Linkage (L{single_link})

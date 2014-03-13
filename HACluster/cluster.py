@@ -164,8 +164,7 @@ class Clusterer(AbstractClusterer):
     have the smallest distance according to function LINKAGE. This continues
     until there is only one cluster.
     """
-    def __init__(self, data, dist_metric=euclidean_distance,
-                 linkage = ward_link, num_clusters=1):
+    def __init__(self, data, linkage = ward_link, num_clusters=1):
         self._num_clusters = num_clusters
         vector_ids = [[i] for i in range(len(data))]
         self._dendrogram = Dendrogram(vector_ids)
@@ -250,8 +249,7 @@ class VNClusterer(Clusterer):
     procedure, all clusters can be clustered with all other clusters. In this 
     class, the clusters that are allowed to be clustered follow a specific order.
     """
-    def __init__(self, data, dist_metric=euclidean_distance,
-                 linkage=ward_link, num_clusters=1):
+    def __init__(self, data, linkage=ward_link, num_clusters=1):
         Clusterer.__init__(self, data, dist_metric, linkage, num_clusters)
 
     def iterate_clusters(self, clusters):
