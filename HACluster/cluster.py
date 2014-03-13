@@ -272,7 +272,7 @@ class VNClusterer(Clusterer):
 def demo():
     """Demo to show some basic functionality."""
     # input vector with two dimensions
-    vectors = [[2,4], [0,1], [1,1], [3,2], [4,0], [2,2]]
+    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2]])
     # compute the distance matrix on the basis of the vectors
     dist_matrix = DistanceMatrix(vectors, lambda u,v: numpy.sum((u-v)**2)/2)
     # plot the distance matrix
