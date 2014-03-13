@@ -19,6 +19,7 @@ from api import AbstractClusterer
 from dendrogram import Dendrogram
 from sklearn.metrics.pairwise import pairwise_distances
 from linkage import *
+from distance import *
 
 
 class CooccurrenceMatrix(numpy.ndarray):
