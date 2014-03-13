@@ -200,7 +200,8 @@ class Clusterer(AbstractClusterer):
         ## if sum_ess and self.linkage.__name__ != "ward_link":
         ##     raise ValueError(
         ##         "Summing for method other than Ward makes no sense...")
-        clusters = copy.copy(self._dist_matrix)
+        # clusters = copy.copy(self._dist_matrix)
+        clusters = self._dist_matrix
         summed_ess = 0.0
 
         while len(clusters) > max(self._num_clusters, 1):
