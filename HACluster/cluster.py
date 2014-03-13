@@ -221,7 +221,7 @@ class Clusterer(AbstractClusterer):
             self._dendrogram.merge(i,j)
             self._dendrogram._items[i].distance = summed_ess
             indices = range(clusters.shape[0])
-            indices.remove(idx)
+            indices.remove(j)
             clusters = clusters.take(indices, axis=0).take(indices, axis=1)
 
     def update_distmatrix(self, i, j, clusters):
