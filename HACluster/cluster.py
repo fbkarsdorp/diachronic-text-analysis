@@ -17,7 +17,7 @@ from itertools import combinations, product
 
 from api import AbstractClusterer
 from dendrogram import Dendrogram
-from distance import *
+from sklearn.metrics.pairwise import pairwise_distances
 from linkage import *
 
 
@@ -220,7 +220,9 @@ class Clusterer(AbstractClusterer):
             clusters = self.update_distmatrix(i, j, clusters)
             self._dendrogram.merge(i,j)
             self._dendrogram._items[i].distance = summed_ess
-            clusters = clusters.remove(j)
+            indices = range(clusters.shape[0])
+            indices.remove(idx)
+            clusters = clusters.take(indices, axis=0).take(indices, axis=1)
 
     def update_distmatrix(self, i, j, clusters):
         """
