@@ -162,5 +162,17 @@ def ward_link(clusters, i, j, dendrogram):
                  -(n_k/(n_ijk))*clusters[i][j] )
     return _general_link(clusters, i, j, ward_update)
 
+LINKAGES = {'ward': ward_link, 
+            'complete': complete_link,
+            'single': single_link,
+            'centroid': centroid_link,
+            'average': average_link,
+            'median': median_link}
+
+def linkage_fn(linkage):
+    if linkage in LINKAGES:
+        return LINKAGES[linkage]
+    raise ValueError("Linkage funtion '%s' is not supported" % linkage)
+
 __all__ = ['single_link', 'complete_link', 'centroid_link', 'ward_link',
            'median_link', 'average_link']

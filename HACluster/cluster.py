@@ -18,7 +18,7 @@ from itertools import combinations, product
 from api import AbstractClusterer
 from dendrogram import Dendrogram
 from sklearn.metrics.pairwise import pairwise_distances
-from linkage import *
+from linkage import linkage_fn
 from distance import *
 
 
@@ -165,13 +165,13 @@ class Clusterer(AbstractClusterer):
     have the smallest distance according to function LINKAGE. This continues
     until there is only one cluster.
     """
-    def __init__(self, data, linkage = ward_link, num_clusters=1):
+    def __init__(self, data, linkage='ward', num_clusters=1):
         self._num_clusters = num_clusters
         vector_ids = [[i] for i in range(len(data))]
         self._dendrogram = Dendrogram(vector_ids)
         numpy.fill_diagonal(data, numpy.inf)
         self._dist_matrix = data
-        self.linkage = linkage
+        self.linkage = linkage_fn(linkage)
 
     def smallest_distance(self, clusters):
         """
@@ -252,8 +252,8 @@ class VNClusterer(Clusterer):
     procedure, all clusters can be clustered with all other clusters. In this 
     class, the clusters that are allowed to be clustered follow a specific order.
     """
-    def __init__(self, data, linkage=ward_link):
-        Clusterer.__init__(self, data, linkage)
+    def __init__(self, data, linkage='ward', num_clusters=1):
+        Clusterer.__init__(self, data, linkage, num_clusters=num_clusters)
 
     def iterate_clusters(self, clusters):
         for i in xrange(1, len(clusters)):
