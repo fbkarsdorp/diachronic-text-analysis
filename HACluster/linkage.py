@@ -106,7 +106,7 @@ def average_link(clusters, i, j, dendrogram):
     
     M{S{alpha}(i) = |i|/(|i|+|j|); S{beta} = 0; S{gamma} = 0}
     """
-    n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
+    n_i, n_j = len(dendrogram[i]), len(dendrogram[j])
     a_i = n_i / (n_i + n_j)
     a_j = n_j / (n_i + n_j)
     update_fn = lambda d_ik,d_jk: a_i*d_ik + a_j*d_jk
@@ -136,7 +136,7 @@ def centroid_link(clusters, i, j, dendrogram):
     M{S{alpha}(i) = |i| / (|i| + |j|); S{beta} = -|i||j| / (|i|+ |j|)^2; 
     S{gamma} = 0}
     """
-    n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
+    n_i, n_j = len(dendrogram[i]), len(dendrogram[j])
     a_i = n_i / (n_i + n_j)
     a_j = n_j / (n_i + n_j)
     b = -(n_i * n_j) / (n_i + n_j)**2
@@ -154,9 +154,9 @@ def ward_link(clusters, i, j, dendrogram):
     M{S{alpha}(i) = (|i| + |k|) / (|i| + |j| + |k|); 
     S{beta} = -|k|/(|i| + |j| + |k|); S{gamma} = 0}
     """
-    n_i, n_j = len(dendrogram._items[i]), len(dendrogram._items[j])
+    n_i, n_j = len(dendrogram[i]), len(dendrogram[j])
     def ward_update(d_ik, d_jk, k):
-        n_k = len(dendrogram._items[k])
+        n_k = len(dendrogram[k])
         n_ijk = n_i+n_j+n_k
         return ( (n_i+n_k)/(n_ijk)*d_ik + (n_j+n_k)/(n_ijk)*d_jk +
                  -(n_k/(n_ijk))*clusters[i][j] )

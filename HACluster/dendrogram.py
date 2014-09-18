@@ -35,7 +35,7 @@ class DendrogramNode(object):
         cluster (the total number of children all the way down the tree).
         """
         if self._children:
-            a_list = [(self._children[0].id, self._children[1].id,
+            a_list = [(self.id, self._children[0].id, self._children[1].id,
                        self.distance, len(self))]
             for child in self._children:
                 a_list.extend(child.adjacency_list())
@@ -46,16 +46,15 @@ class DendrogramNode(object):
         return len(self.leaves())
 
 
-class Dendrogram(object):
+class Dendrogram(list):
     """
     Class representing a dendrogram. Part is inspired by the Dendrogram class
     of NLTK. It is adjusted to work properly and more efficiently with
     matplotlib and VNC. 
     """
     def __init__(self, items):
-        self._items = [DendrogramNode(i) for i in xrange(len(items))]
-        self._original_items = copy.copy(self._items)
-        self._num_items = len(self._items)
+        super(Dendrogram, self).__init__(map(DendrogramNode, xrange(len(items))))
+        self._num_items = len(self)
 
     def merge(self, *indices):
         """
@@ -64,11 +63,17 @@ class Dendrogram(object):
         """
         assert len(indices) >= 2
         node = DendrogramNode(
-            self._num_items, *[self._items[i] for i in indices])
+            self._num_items, *[self[i] for i in indices])
         self._num_items += 1
-        self._items[indices[0]] = node
+        self[indices[0]] = node
         for i in indices[1:]:
-            del self._items[i]
+            del self[i]
+
+    def to_linkage_matrix(self):
+        Z = self[0].adjacency_list()
+        Z.sort()
+        Z = numpy.array(Z)
+        return Z[:,1:]
 
     def draw(self, show=True, save=False, format="pdf", labels=None, title=None, fontsize=None):
         """Draw the dendrogram using pylab and matplotlib."""
@@ -82,8 +87,7 @@ class Dendrogram(object):
             raise ImportError("Pylab not installed, can't draw dendrogram")
         
         fig = pylab.figure()
-        m = numpy.array(self._items[0].adjacency_list(), numpy.dtype('d'))
-        m.view('d,d,d,d').sort(order=['f2'], axis=0)
+        m = self.to_linkage_matrix()
         # default labels are the cluster id's (these must be matched!!)
         d = scipy_dendrogram(m, labels=labels, leaf_font_size=fontsize,
                              color_threshold=0.6*max(m[:,2]))

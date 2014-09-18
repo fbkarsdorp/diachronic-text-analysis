@@ -221,7 +221,7 @@ class Clusterer(AbstractClusterer):
                 summed_ess = best
             clusters = self.update_distmatrix(i, j, clusters)
             self._dendrogram.merge(i,j)
-            self._dendrogram._items[i].distance = summed_ess
+            self._dendrogram[i].distance = summed_ess
             indices = numpy.arange(clusters.shape[0])
             indices = indices[indices!=j]
             clusters = clusters.take(indices, axis=0).take(indices, axis=1)
@@ -252,8 +252,8 @@ class VNClusterer(Clusterer):
     procedure, all clusters can be clustered with all other clusters. In this 
     class, the clusters that are allowed to be clustered follow a specific order.
     """
-    def __init__(self, data, linkage=ward_link, num_clusters=1):
-        Clusterer.__init__(self, data, dist_metric, linkage, num_clusters)
+    def __init__(self, data, linkage=ward_link):
+        Clusterer.__init__(self, data, linkage)
 
     def iterate_clusters(self, clusters):
         for i in xrange(1, len(clusters)):
@@ -291,5 +291,4 @@ def demo():
 
 if __name__ == '__main__':
     demo()
-
 
