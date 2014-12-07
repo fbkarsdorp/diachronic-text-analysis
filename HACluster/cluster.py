@@ -186,7 +186,7 @@ class Clusterer(AbstractClusterer):
             the clusters yielding the smallest distance.
         """
         i, j = numpy.unravel_index(numpy.argmin(clusters), clusters.shape)
-        return clusters[i,j], i, j
+        return clusters[i, j], i, j
 
     def cluster(self, verbose=0, sum_ess=False):
         """
@@ -271,6 +271,19 @@ class VNClusterer(Clusterer):
         # singleton clustering.
         Clusterer.cluster(self, verbose=verbose, sum_ess=True)
 
+
+class EuclideanNeighborClusterer(VNClusterer):
+
+    def iterate_clusters(self, x, y):
+        n_features, n_samples = x, y
+        offset = (0, -1, 1) 
+        indices = ((i, j) for i in range(n_features) for j in range(n_samples))
+        for i, j in indices:
+            all_neigh = ((i + x, j + y) for x in offset for y in offset)
+            valid = ((i*n_features + j) for i, j in all_neigh if (0 <= i < n_features) and (0 <= j < n_samples))
+            target = valid.next()
+            for neighbor in list(valid):
+                yield target, neighbor
 
 def demo():
     """Demo to show some basic functionality."""
