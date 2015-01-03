@@ -50,7 +50,7 @@ class Dendrogram(list):
     """
     Class representing a dendrogram. Part is inspired by the Dendrogram class
     of NLTK. It is adjusted to work properly and more efficiently with
-    matplotlib and VNC. 
+    matplotlib and VNC.
     """
     def __init__(self, items):
         super(Dendrogram, self).__init__(map(DendrogramNode, xrange(len(items))))
@@ -85,7 +85,7 @@ class Dendrogram(list):
             import pylab
         except ImportError:
             raise ImportError("Pylab not installed, can't draw dendrogram")
-        
+
         fig = pylab.figure()
         m = self.to_linkage_matrix()
         # default labels are the cluster id's (these must be matched!!)
@@ -97,4 +97,3 @@ class Dendrogram(list):
             fig.show()
         if save:
             fig.savefig('dendrogram.%s' % (format,))
-
