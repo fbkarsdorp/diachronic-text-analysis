@@ -92,7 +92,7 @@ class Dendrogram(list):
             raise ImportError("Matplotlib not installed, can't draw dendrogram")
 
         fig = plt.figure()
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot(111, axisbg='white')
 
         plt.rcParams['font.family'] = 'arial'
         plt.rcParams['font.size'] = 10
@@ -100,10 +100,9 @@ class Dendrogram(list):
 
         m = self.to_linkage_matrix()
 
-        # default labels are the cluster id's (these must be matched!!)
         d = scipy_dendrogram(m, labels=labels,
                              leaf_font_size=fontsize,
-                             color_threshold=0.6*max(m[:,2]),
+                             color_threshold=0.7*max(m[:,2]),
                              leaf_rotation=180)
 
         ax = plt.gca()
@@ -123,7 +122,11 @@ class Dendrogram(list):
         plt.tick_params(axis='y', which='both', bottom='off', top='off')
         ax.xaxis.grid(False)
         ax.yaxis.grid(False)
-        
+
+        plt.rcParams["figure.facecolor"] = "white"
+        plt.rcParams["axes.facecolor"] = "white"
+        plt.rcParams["savefig.facecolor"] = "white"
+
 
         if title is not None:
             fig.suptitle(title, fontsize=12)
