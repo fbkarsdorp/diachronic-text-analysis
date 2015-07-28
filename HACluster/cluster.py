@@ -74,7 +74,7 @@ class CooccurrenceMatrix(numpy.ndarray):
         # the number of documents in which a word is attested.
         word_frequencies = numpy.asarray(numpy.sum(self > 0, axis=0), dtype=float)
         # calculate the term frequencies
-        for i in xrange(self.shape[0]):
+        for i in range(self.shape[0]):
             tf = self[i] / words_per_doc[i] # array of tf's
             matrix[i] = tf * (numpy.log(self.shape[0] / word_frequencies))
         return matrix
@@ -114,7 +114,7 @@ class DistanceMatrix(numpy.ndarray):
     @classmethod
     def convert_to_distmatrix(cls, data, distance, lower=True):
         matrix = numpy.zeros((len(data), len(data)))
-        for i,j in combinations(xrange(len(data)), 2):
+        for i,j in combinations(range(len(data)), 2):
             matrix[i][j] = distance(data[i], data[j])
             if lower == True:
                 matrix[j][i] = matrix[i][j]
@@ -256,7 +256,7 @@ class VNClusterer(Clusterer):
         Clusterer.__init__(self, data, linkage, num_clusters=num_clusters)
 
     def iterate_clusters(self, clusters):
-        for i in xrange(1, len(clusters)):
+        for i in range(1, len(clusters)):
             yield i-1,i
 
     def smallest_distance(self, clusters):

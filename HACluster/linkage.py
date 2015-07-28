@@ -48,7 +48,7 @@ def _general_link(clusters, i, j, method):
     
     @return: an updated distance matrix
     """
-    for k in xrange(len(clusters)):
+    for k in range(len(clusters)):
         if k != i and k != j:
             if method.__name__ == "ward_update":
                 new_distance = method(clusters[i,k], clusters[j,k], k)
