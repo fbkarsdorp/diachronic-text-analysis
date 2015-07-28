@@ -286,17 +286,24 @@ class EuclideanNeighborClusterer(VNClusterer):
                 yield target, neighbor
 
 def demo():
-    """Demo to show some basic functionality."""
-    # input vector with two dimensions
+    """
+    Demo to show some basic functionality.
+    """
+    # declare dummy input vector with two dimensions:
     vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2], [8, 9], [8, 11]])
-    # compute the distance matrix on the basis of the vectors
-    dist_matrix = pairwise_distances(vectors)
-    # plot the distance matrix
-#    dist_matrix.draw()
-    # initialize a clusterer, with default linkage methode (Ward)
-    clusterer = VNClusterer(dist_matrix, linkage='ward')
-    # start the clustering procedure
+
+    # compute the distance matrix on the basis of the vectors via sklearn:
+    dist_matrix = pairwise_distances(vectors, metric='cityblock')
+
+    # plot the distance matrix:
+    dist_matrix.draw()
+
+    # initialize a temporal VNC clusterer, here with the Ward linkage method:
+    clusterer = VNClusterer(dist_matrix, linkage='ward') # could also be a plain Clusterer()
+
+    # start the clustering procedure:
     clusterer.cluster(verbose=1)
+
     # plot the result as a dendrogram
     clusterer.dendrogram().draw(title=clusterer.linkage.__name__, save=True)
 
