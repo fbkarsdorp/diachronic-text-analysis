@@ -74,7 +74,7 @@ class CooccurrenceMatrix(numpy.ndarray):
         # the number of documents in which a word is attested.
         word_frequencies = numpy.asarray(numpy.sum(self > 0, axis=0), dtype=float)
         # calculate the term frequencies
-        for i in xrange(self.shape[0]):
+        for i in range(self.shape[0]):
             tf = self[i] / words_per_doc[i] # array of tf's
             matrix[i] = tf * (numpy.log(self.shape[0] / word_frequencies))
         return matrix
@@ -114,7 +114,7 @@ class DistanceMatrix(numpy.ndarray):
     @classmethod
     def convert_to_distmatrix(cls, data, distance, lower=True):
         matrix = numpy.zeros((len(data), len(data)))
-        for i,j in combinations(xrange(len(data)), 2):
+        for i,j in combinations(range(len(data)), 2):
             matrix[i][j] = distance(data[i], data[j])
             if lower == True:
                 matrix[j][i] = matrix[i][j]
@@ -153,9 +153,9 @@ class DistanceMatrix(numpy.ndarray):
 
     def summary(self):
         """Return a small summary of the matrix."""
-        print 'DistanceMatrix (n=%s)' % len(self)
-        print 'Distance metric = %s' % self.distance_metric.__name__
-        print self
+        print('DistanceMatrix (n=%s)' % len(self))
+        print('Distance metric = %s' % self.distance_metric.__name__)
+        print(self)
 
 
 class Clusterer(AbstractClusterer):
@@ -207,9 +207,9 @@ class Clusterer(AbstractClusterer):
 
         while len(clusters) > max(self._num_clusters, 1):
             if verbose >= 1:
-                print 'k=%s' % len(clusters)
+                print('k=%s' % len(clusters))
                 if verbose == 2:
-                    print clusters
+                    print(clusters)
             
             best, i, j = self.smallest_distance(clusters)
             # In Ward (1963) ess is summed at each iteration
@@ -256,7 +256,7 @@ class VNClusterer(Clusterer):
         Clusterer.__init__(self, data, linkage, num_clusters=num_clusters)
 
     def iterate_clusters(self, clusters):
-        for i in xrange(1, len(clusters)):
+        for i in range(1, len(clusters)):
             yield i-1,i
 
     def smallest_distance(self, clusters):
@@ -286,20 +286,26 @@ class EuclideanNeighborClusterer(VNClusterer):
                 yield target, neighbor
 
 def demo():
-    """Demo to show some basic functionality."""
-    # input vector with two dimensions
-    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2]]*500)
-    # compute the distance matrix on the basis of the vectors
-#    dist_matrix = DistanceMatrix(vectors, lambda u,v: numpy.sum((u-v)**2)/2)
-    dist_matrix = pairwise_distances(vectors)
-    # plot the distance matrix
-#    dist_matrix.draw()
-    # initialize a clusterer, with default linkage methode (Ward)
-    clusterer = Clusterer(dist_matrix, linkage=single_link)
-    # start the clustering procedure
+    """
+    Demo to show some basic functionality.
+    """
+    # declare dummy input vector with two dimensions:
+    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2], [8, 9], [8, 11]])
+
+    # compute the distance matrix on the basis of the vectors via sklearn:
+    dist_matrix = pairwise_distances(vectors, metric='cityblock')
+
+    # plot the distance matrix:
+    dist_matrix.draw()
+
+    # initialize a temporal VNC clusterer, here with the Ward linkage method:
+    clusterer = VNClusterer(dist_matrix, linkage='ward') # could also be a plain Clusterer()
+
+    # start the clustering procedure:
     clusterer.cluster(verbose=1)
+
     # plot the result as a dendrogram
-#    clusterer.dendrogram().draw(title=clusterer.linkage.__name__)
+    clusterer.dendrogram().draw(title=clusterer.linkage.__name__, save=True)
 
 
 if __name__ == '__main__':
