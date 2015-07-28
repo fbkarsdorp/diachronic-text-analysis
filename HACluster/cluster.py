@@ -6,6 +6,7 @@
 # For licence information, see LICENCE.TXT
 
 from __future__ import division
+from __future__ import absolute_import
 
 import numpy
 import copy
@@ -15,11 +16,13 @@ from operator import itemgetter
 from collections import defaultdict
 from itertools import combinations, product
 
-from api import AbstractClusterer
-from dendrogram import Dendrogram
+from . api import AbstractClusterer
+from . dendrogram import Dendrogram
+from . linkage import linkage_fn
+from . distance import *
+
 from sklearn.metrics.pairwise import pairwise_distances
-from linkage import linkage_fn
-from distance import *
+
 
 
 class CooccurrenceMatrix(numpy.ndarray):
