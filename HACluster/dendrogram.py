@@ -7,6 +7,7 @@
 
 import copy
 import sys
+import numpy as np
 
 import numpy
 from operator import itemgetter
@@ -85,12 +86,48 @@ class Dendrogram(list):
             import pylab
         except ImportError:
             raise ImportError("Pylab not installed, can't draw dendrogram")
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError("Matplotlib not installed, can't draw dendrogram")
 
-        fig = pylab.figure()
+        fig = plt.figure()
+        ax = fig.add_subplot(111, axisbg='white')
+
+        plt.rcParams['font.family'] = 'arial'
+        plt.rcParams['font.size'] = 10
+        plt.rcParams['lines.linewidth'] = 0.75
+
         m = self.to_linkage_matrix()
-        # default labels are the cluster id's (these must be matched!!)
-        d = scipy_dendrogram(m, labels=labels, leaf_font_size=fontsize,
-                             color_threshold=0.6*max(m[:,2]))
+
+        d = scipy_dendrogram(m, labels=labels,
+                             leaf_font_size=fontsize,
+                             color_threshold=0.7*max(m[:,2]),
+                             leaf_rotation=180)
+
+        ax = plt.gca()
+        ax_labels = ax.get_xmajorticklabels()+ax.get_ymajorticklabels()
+        for i in range(len(ax_labels)):
+            ax_labels[i].set_family('arial')
+
+        ax.get_yaxis().set_ticks([])
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        plt.xticks(rotation=90)
+
+        plt.tick_params(axis='x', which='both', bottom='off', top='off')
+        plt.tick_params(axis='y', which='both', bottom='off', top='off')
+        ax.xaxis.grid(False)
+        ax.yaxis.grid(False)
+
+        plt.rcParams["figure.facecolor"] = "white"
+        plt.rcParams["axes.facecolor"] = "white"
+        plt.rcParams["savefig.facecolor"] = "white"
+
+
         if title is not None:
             fig.suptitle(title, fontsize=12)
         if show:

@@ -44,11 +44,12 @@ Usage example (compare demo()):
 @copyright: (c) 2011, Folgert Karsdorp
 """
 
-from utils import *
-from cluster import *
-from dendrogram import *
-from distance import *
-from linkage import *
+from __future__ import absolute_import
+
+from . cluster import *
+from . dendrogram import *
+from . distance import *
+from . linkage import *
 
 __all__ = ['Dendrogram', 'Clusterer', 'VNClusterer', 
            'CooccurrenceMatrix', 'DistanceMatrix']
