@@ -41,13 +41,13 @@ class CooccurrenceMatrix(numpy.ndarray):
         if obj is None: return
         self.rownames = getattr(obj, 'rownames', None)
         self.colnames = getattr(obj, 'colnames', None)
-        
+
     def row(self, row):
         return self[self.rownames.get(row)]
-        
+
     def col(self, col):
         return self[:,self.colnames.get(col)]
-        
+
     def cell(self, row, col):
         return self[self.rownames.get(row), self.colnames.get(col)]
 
@@ -101,7 +101,7 @@ class DistanceMatrix(numpy.ndarray):
     def __array_finialize__(self, obj):
         if obj is None: return
         self.distance_metric = getattr(obj, 'distance_metric', None)
-    
+
     def row(self, row):
         return self[self.rownames.get(row)]
 
@@ -109,8 +109,8 @@ class DistanceMatrix(numpy.ndarray):
         return self[:,self.colnames.get(col)]
 
     def cell(self, row, col):
-        return self[self.rownames.get(row), self.colnames.get(col)]  
-        
+        return self[self.rownames.get(row), self.colnames.get(col)]
+
     def rows(self):
         return [k for k,v in sorted(self.rownames.items(), key=itemgetter(1))]
 
@@ -124,7 +124,7 @@ class DistanceMatrix(numpy.ndarray):
         # add a nan-diagonal, useful for further computations.
         numpy.fill_diagonal(matrix, numpy.nan)
         return matrix
-            
+
     def diag_is_zero(self):
         """Check if the diagonal contains only distances of 0."""
         return max(numpy.diag(self)) == 0
@@ -181,8 +181,8 @@ class Clusterer(AbstractClusterer):
         Return the smallest distance in the distance matrix.
         The smallest distance depends on the possible connections in
         the distance matrix.
-        
-        @param clusters: an object of the class L{DistanceMatrix} holding the 
+
+        @param clusters: an object of the class L{DistanceMatrix} holding the
             clusters at a specific state in the clustering procedure.
         @type clusters: L{DistanceMatrix}
         @return: a tuple containing the smallest distance and the indexes of
@@ -195,11 +195,11 @@ class Clusterer(AbstractClusterer):
         """
         Cluster all clusters hierarchically until the level of
         num_clusters is obtained.
-        
+
         @param verbose: how much output is produced during the clustering (0-2)
         @type verbose: C{int}
-        
-        @return: None, desctructive method. 
+
+        @return: None, desctructive method.
         """
         ## if sum_ess and self.linkage.__name__ != "ward_link":
         ##     raise ValueError(
@@ -213,10 +213,10 @@ class Clusterer(AbstractClusterer):
                 print('k=%s' % len(clusters))
                 if verbose == 2:
                     print(clusters)
-            
+
             best, i, j = self.smallest_distance(clusters)
             # In Ward (1963) ess is summed at each iteration
-            # in R's hclust and Python's hcluster and some text books it is not. 
+            # in R's hclust and Python's hcluster and some text books it is not.
             # Here it is optional...
             if sum_ess:
                 summed_ess += best
@@ -236,6 +236,7 @@ class Clusterer(AbstractClusterer):
         """
         return self.linkage(clusters, i, j, self._dendrogram)
 
+    @property
     def dendrogram(self):
         """Return the dendrogram object."""
         return self._dendrogram
@@ -252,7 +253,7 @@ class VNClusterer(Clusterer):
     """
     Variability Neighbor Clustering Class. A subclass of the regular Clusterer
     where the order of clustering can be predetermined. In the normal clustering
-    procedure, all clusters can be clustered with all other clusters. In this 
+    procedure, all clusters can be clustered with all other clusters. In this
     class, the clusters that are allowed to be clustered follow a specific order.
     """
     def __init__(self, data, linkage='ward', num_clusters=1):
@@ -279,7 +280,7 @@ class EuclideanNeighborClusterer(VNClusterer):
 
     def iterate_clusters(self, x, y):
         n_features, n_samples = x, y
-        offset = (0, -1, 1) 
+        offset = (0, -1, 1)
         indices = ((i, j) for i in range(n_features) for j in range(n_samples))
         for i, j in indices:
             all_neigh = ((i + x, j + y) for x in offset for y in offset)
@@ -309,11 +310,10 @@ def demo():
 
     labels = ['n'+str(i+1) for i in range(len(vectors))]
     # plot the result as a dendrogram
-    clusterer.dendrogram().draw(save=True,
+    clusterer.dendrogram.draw(save=True,
                                 labels=labels,
                                 title="VNC Analysis (Ward's Linkage)")
 
 
 if __name__ == '__main__':
     demo()
-

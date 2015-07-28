@@ -10,6 +10,7 @@ import sys
 import numpy as np
 
 import numpy
+
 from operator import itemgetter
 
 class DendrogramNode(object):
@@ -134,3 +135,46 @@ class Dendrogram(list):
             fig.show()
         if save:
             fig.savefig('dendrogram.%s' % (format,))
+
+    def ete_tree(self, labels=None):
+        from ete2 import Tree, NodeStyle, TreeStyle
+        from scipy.cluster.hierarchy import to_tree
+
+        T = to_tree(self.to_linkage_matrix())
+        root = Tree()
+        root.dist = 0
+        root.name = "root"
+        item2node = {T: root}
+        to_visit = [T]
+        while to_visit:
+            node = to_visit.pop()
+            cl_dist = node.dist / 2.0
+            for ch_node in [node.left, node.right]:
+                if ch_node:
+                    ch = Tree()
+                    ch.dist = cl_dist
+                    ch.name = str(ch_node.id)
+                    item2node[node].add_child(ch)
+                    item2node[ch_node] = ch
+                    to_visit.append(ch_node)
+        if labels != None:
+            for leaf in root.get_leaves():
+                leaf.name = str(labels[int(leaf.name)])
+
+        ts = TreeStyle()
+        ts.show_leaf_name = True
+
+        # Draws nodes as small red spheres of diameter equal to 10 pixels
+        nstyle = NodeStyle()
+        nstyle["shape"] = None
+        nstyle["size"] = 0
+
+        # Gray dashed branch lines
+        nstyle["hz_line_type"] = 1
+        nstyle["hz_line_color"] = "#cccccc"
+
+        # Applies the same static style to all nodes in the tree. Note that,
+        # if "nstyle" is modified, changes will affect to all nodes
+        for n in root.traverse():
+           n.set_style(nstyle)
+        return root
