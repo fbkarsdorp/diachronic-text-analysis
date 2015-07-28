@@ -296,7 +296,7 @@ def demo():
     dist_matrix = pairwise_distances(vectors, metric='cityblock')
 
     # plot the distance matrix:
-    dist_matrix.draw()
+    # dist_matrix.draw() this doesn't work anymore
 
     # initialize a temporal VNC clusterer, here with the Ward linkage method:
     clusterer = VNClusterer(dist_matrix, linkage='ward') # could also be a plain Clusterer()
@@ -304,8 +304,11 @@ def demo():
     # start the clustering procedure:
     clusterer.cluster(verbose=1)
 
+    labels = ['n'+str(i+1) for i in range(len(vectors))]
     # plot the result as a dendrogram
-    clusterer.dendrogram().draw(title=clusterer.linkage.__name__, save=True)
+    clusterer.dendrogram().draw(save=True,
+                                labels=labels,
+                                title="VNC Analysis (Ward's Linkage)")
 
 
 if __name__ == '__main__':
