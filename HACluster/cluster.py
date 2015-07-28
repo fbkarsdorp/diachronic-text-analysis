@@ -288,18 +288,17 @@ class EuclideanNeighborClusterer(VNClusterer):
 def demo():
     """Demo to show some basic functionality."""
     # input vector with two dimensions
-    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2]]*500)
+    vectors = numpy.array([[2,4], [0,1], [1,1], [3,2], [4,0], [2,2], [8, 9], [8, 11]])
     # compute the distance matrix on the basis of the vectors
-#    dist_matrix = DistanceMatrix(vectors, lambda u,v: numpy.sum((u-v)**2)/2)
     dist_matrix = pairwise_distances(vectors)
     # plot the distance matrix
 #    dist_matrix.draw()
     # initialize a clusterer, with default linkage methode (Ward)
-    clusterer = Clusterer(dist_matrix, linkage=single_link)
+    clusterer = VNClusterer(dist_matrix, linkage='ward')
     # start the clustering procedure
     clusterer.cluster(verbose=1)
     # plot the result as a dendrogram
-#    clusterer.dendrogram().draw(title=clusterer.linkage.__name__)
+    clusterer.dendrogram().draw(title=clusterer.linkage.__name__, save=True)
 
 
 if __name__ == '__main__':
