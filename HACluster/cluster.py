@@ -153,9 +153,9 @@ class DistanceMatrix(numpy.ndarray):
 
     def summary(self):
         """Return a small summary of the matrix."""
-        print 'DistanceMatrix (n=%s)' % len(self)
-        print 'Distance metric = %s' % self.distance_metric.__name__
-        print self
+        print('DistanceMatrix (n=%s)' % len(self))
+        print('Distance metric = %s' % self.distance_metric.__name__)
+        print(self)
 
 
 class Clusterer(AbstractClusterer):
@@ -207,9 +207,9 @@ class Clusterer(AbstractClusterer):
 
         while len(clusters) > max(self._num_clusters, 1):
             if verbose >= 1:
-                print 'k=%s' % len(clusters)
+                print('k=%s' % len(clusters))
                 if verbose == 2:
-                    print clusters
+                    print(clusters)
             
             best, i, j = self.smallest_distance(clusters)
             # In Ward (1963) ess is summed at each iteration
