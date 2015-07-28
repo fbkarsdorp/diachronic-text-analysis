@@ -53,7 +53,7 @@ class Dendrogram(list):
     matplotlib and VNC.
     """
     def __init__(self, items):
-        super(Dendrogram, self).__init__(map(DendrogramNode, xrange(len(items))))
+        super(Dendrogram, self).__init__(map(DendrogramNode, range(len(items))))
         self._num_items = len(self)
 
     def merge(self, *indices):
