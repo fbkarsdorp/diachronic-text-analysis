@@ -96,7 +96,7 @@ class Dendrogram(list):
         ax = fig.add_subplot(111, axisbg='white')
 
         plt.rcParams['font.family'] = 'arial'
-        plt.rcParams['font.size'] = 10
+        plt.rcParams['font.size'] = 6
         plt.rcParams['lines.linewidth'] = 0.75
 
         m = self.to_linkage_matrix()
@@ -128,7 +128,6 @@ class Dendrogram(list):
         plt.rcParams["axes.facecolor"] = "white"
         plt.rcParams["savefig.facecolor"] = "white"
 
-
         if title is not None:
             fig.suptitle(title, fontsize=12)
         if show:
@@ -137,7 +136,13 @@ class Dendrogram(list):
             fig.savefig('dendrogram.%s' % (format,))
 
     def ete_tree(self, labels=None):
-        from ete2 import Tree, NodeStyle, TreeStyle
+        if sys.version_info[0] == 2:
+            from ete2 import Tree, NodeStyle, TreeStyle
+        elif sys.version_info[0] == 3:
+            from ete3 import Tree, NodeStyle, TreeStyle
+        else:
+            raise ValueError('Your version of Python is not supported.')
+
         from scipy.cluster.hierarchy import to_tree
 
         T = to_tree(self.to_linkage_matrix())
