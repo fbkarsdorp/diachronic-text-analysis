@@ -139,7 +139,8 @@ class Dendrogram(list):
         if sys.version_info[0] == 2:
             from ete2 import Tree, NodeStyle, TreeStyle
         elif sys.version_info[0] == 3:
-            from ete3 import Tree, NodeStyle, TreeStyle
+            from ete3 import Tree
+            from ete3.treeview import NodeStyle, TreeStyle
         else:
             raise ValueError('Your version of Python is not supported.')
 
@@ -149,7 +150,7 @@ class Dendrogram(list):
         root = Tree()
         root.dist = 0
         root.name = "root"
-        item2node = {T: root}
+        item2node = {T.get_id(): root}
         to_visit = [T]
         while to_visit:
             node = to_visit.pop()
@@ -159,8 +160,8 @@ class Dendrogram(list):
                     ch = Tree()
                     ch.dist = cl_dist
                     ch.name = str(ch_node.id)
-                    item2node[node].add_child(ch)
-                    item2node[ch_node] = ch
+                    item2node[node.get_id()].add_child(ch)
+                    item2node[ch_node.get_id()] = ch
                     to_visit.append(ch_node)
         if labels != None:
             for leaf in root.get_leaves():
